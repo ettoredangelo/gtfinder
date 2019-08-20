@@ -407,30 +407,3 @@ class ExtensiveFormGame:
         else:
             return False
 
-
-
-t = ExtensiveFormGame(['1', '2'], '1')
-t.add_node(t.root, 'p', Node('2'))
-t.add_node(t.root, 'q', Node('2'))
-t.add_node(t.root.children['q'], 'a', [2, 0])
-t.add_node(t.root.children['q'], 'b', [6, 1])
-t.add_node(t.root.children['q'], 'c', [8, 1])
-t.add_node(t.root.children['q'], 'd', [12, 0])
-t.add_node(t.root.children['p'], 'a', Node('1'))
-t.add_node(t.root.children['p'], 'b', Node('1'))
-t.add_node(t.root.children['p'], 'c', Node('1'))
-t.add_node(t.root.children['p'], 'd', Node('1'))
-t.add_node(t.root.children['p'].children['a'], 'e', [1, 0])
-t.add_node(t.root.children['p'].children['a'], 'f', [4, 0])
-t.add_node(t.root.children['p'].children['b'], 'e', [5, 2])
-t.add_node(t.root.children['p'].children['b'], 'f', [3, 1])
-t.add_node(t.root.children['p'].children['c'], 'x', [7, 3])
-t.add_node(t.root.children['p'].children['c'], 'y', [9, 1])
-t.add_node(t.root.children['p'].children['d'], 'x', [11, 2])
-t.add_node(t.root.children['p'].children['d'], 'y', [10, 4])
-t.create_information_set([t.root])
-t.create_information_set(t.root.get_children())
-t.create_information_set([t.root.children['p'].children['a'], t.root.children['p'].children['b']])
-t.create_information_set([t.root.children['p'].children['c'], t.root.children['p'].children['d']])
-
-i = t.get_rationalizable_strategies()
