@@ -6,8 +6,8 @@ import itertools
 import numpy as np
 from collections import defaultdict
 from scipy.optimize import linprog
-from Node import Node
-from InformationSet import InformationSet
+from .Node import Node
+from .InformationSet import InformationSet
 
 
 class ExtensiveFormGame:
