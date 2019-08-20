@@ -11,7 +11,7 @@ setuptools.setup(
     description="A package to create and analyze dynamic games",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/pypa/sampleproject",
+    url="https://github.com/ettoredangelo/gtfinder",
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
@@ -19,3 +19,4 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
 )
+
