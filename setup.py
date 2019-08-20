@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="gtfinder",
-    version="0.1",
+    version="1",
     author="Ettore d'Angelo",
     author_email="ettoredangelo97@gmail.com",
     description="A package to create and analyze dynamic games",
