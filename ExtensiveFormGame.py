@@ -64,7 +64,7 @@ class ExtensiveFormGame:
          - if node is a list, it adds a terminal history
          - if node is a node adds another node
 
-        :param parent: Node, it is the node from which the action strts
+        :param parent: Node, it is the node from which the action starts
         :param action: str, action from which it depends
         :param node: list or Node, resulting partial or terminal history
         '''
@@ -83,6 +83,16 @@ class ExtensiveFormGame:
         if isinstance(node, Node):
             self.nodes.append(node)
 
+    def create_information_set(self, nodes):
+        '''
+        This function creates an information set
+        :param nodes:
+        :return:
+        '''
+        for node in nodes:
+            assert node in self.nodes
+        self.L.append(InformationSet(nodes))
+
     def get_nodes(self):
         '''
         Print list of nodes in the game
@@ -99,14 +109,17 @@ class ExtensiveFormGame:
 
         return self.root.get_paths()
 
-    def create_information_set(self, nodes):
+    def get_info_set_by_player(self, player):
         '''
-        This function creates an information set
-        :param nodes:
-        :return:
+        This function returns the information sets wehre the player is active
+        :param player: str, name of the player
+        :return: list, contains the information sets
         '''
-
-        self.L.append(InformationSet(nodes))
+        sets = []
+        for info in self.L:
+            if player == info.player:
+                sets.append(info)
+        return sets
 
     def get_strategies(self):
         '''
@@ -124,18 +137,6 @@ class ExtensiveFormGame:
             strategies[player] = list(itertools.product(*actions))
         return strategies
 
-    def get_info_set_by_player(self, player):
-        '''
-        This function returns the information sets wehre the player is active
-        :param player: str, name of the player
-        :return: list, contains the information sets
-        '''
-        sets = []
-        for info in self.L:
-            if player == info.player:
-                sets.append(info)
-        return sets
-
     def get_payoffs(self, strategies):
         '''
         returns the payoff resulting from a strategy profile
@@ -150,21 +151,6 @@ class ExtensiveFormGame:
             if isinstance(node, list):
                 return node
             player = node.player
-
-    def check_behavior_equivalent(self, strategy_1, strategy_2, player):
-        '''
-        check if two startegies are behaviourally equivalent
-        :param strategy_1:
-        :param strategy_2:
-        :param player:
-        :return:
-        '''
-        paths_1 = self.get_paths_from_strategy(strategy_1, player)
-        paths_2 = self.get_paths_from_strategy(strategy_2, player)
-        if paths_1 == paths_2:
-            return True
-        else:
-            return False
 
     def get_paths_from_strategy(self, strategy, player):
         '''
@@ -194,6 +180,37 @@ class ExtensiveFormGame:
             paths.append(path)
 
         return sorted(paths)
+
+    def check_behavior_equivalent(self, strategy_1, strategy_2, player):
+        '''
+        check if two startegies are behaviourally equivalent
+        :param strategy_1:
+        :param strategy_2:
+        :param player:
+        :return:
+        '''
+        paths_1 = self.get_paths_from_strategy(strategy_1, player)
+        paths_2 = self.get_paths_from_strategy(strategy_2, player)
+        if paths_1 == paths_2:
+            return True
+        else:
+            return False
+
+    def get_common_actions(self, strategies):
+        '''
+        get the actions in common between a list of strategies
+        :param strategies:
+        :return:
+        '''
+        new = []
+        for action in strategies[0]:
+            flag = True
+            for strategy in strategies[1:]:
+                if action not in strategy:
+                    flag = False
+            if flag:
+                new.append(action)
+        return new
 
     def get_reduced_strategies_by_player(self, player):
         '''
@@ -226,22 +243,6 @@ class ExtensiveFormGame:
             s = [player_strategies[i] for i in u]
             RS.append(self.get_common_actions(s))
         return RS
-
-    def get_common_actions(self, strategies):
-        '''
-        get the actions in common between a list of strategies
-        :param strategies:
-        :return:
-        '''
-        new = []
-        for action in strategies[0]:
-            flag = True
-            for strategy in strategies[1:]:
-                if action not in strategy:
-                    flag = False
-            if flag:
-                new.append(action)
-        return new
 
     def get_strategies_by_info_set(self, info_set, reduced_strategies, player):
         '''
@@ -297,67 +298,6 @@ class ExtensiveFormGame:
 
         return M, rows_and_columns
 
-    def get_rationalizable_strategies(self):
-        # list of matrices and of the lists of names of rows and columns
-        M, rows_and_columns = self.initialization_step()
-        # list of dominated strategies
-        dominated = []
-
-        while True:
-            flag = []
-            #loop thrugh all the matrices
-            for i in range(len(M)):
-                # select matrix, list of rows and columns and list of dominated rows
-                MJ = M[i]
-                row_and_col = rows_and_columns[i]
-                dom = self.ro(MJ, row_and_col, dominated)
-                for i in dom:
-                    if i not in dominated:
-                        flag.append(i)
-
-            if len(flag) == 0:
-                break
-            else:
-                for i in flag:
-                    if i not in dominated:
-                        dominated.append(i)
-
-        reduced_strat = {}
-        for player in self.players:
-            reduced_strat[player] = self.get_reduced_strategies_by_player(player)
-        for player in self.players:
-            reduced_strat[player] = [i for i in reduced_strat[player] if i not in dominated]
-
-        return reduced_strat
-
-
-    def ro(self, MJ, row_and_col, dominated=[], verbose=False):
-        '''
-        rationalizable operator
-
-        :param dominated: list of lists of dominated strategies, one for each player
-        :return: updated list of dominated strategies
-        '''
-        new_dominated = [i.copy() for i in dominated]
-        # create a list of lists of not dominated strategies
-        rows = [row_and_col[0].index(i) for i in row_and_col[0] if i in dominated]
-        columns = [row_and_col[1].index(i) for i in row_and_col[1] if i in dominated]
-
-        not_dominated_rows = [i for i in range(MJ.shape[0]) if i not in rows]
-
-        if verbose:
-            print('the dominated is', new_dominated)
-            print('dominated rows', rows)
-            print('dominated columns', columns)
-
-        # loop through all the not dominated rows and see if now are dominated
-        for row in row_and_col[0]:
-            if row_and_col[0].index(row) not in rows:
-                if self.dominated(MJ, row_and_col[0].index(row), rows=rows, columns=columns):
-                    new_dominated.append(row)
-
-        return new_dominated
-
     def dominated(self, MJ, d_r, rows=[], columns=[]):
         '''
         This function checks if a strategy is strictly dominated
@@ -407,3 +347,60 @@ class ExtensiveFormGame:
         else:
             return False
 
+    def ro(self, MJ, row_and_col, dominated=[], verbose=False):
+        '''
+        rationalizable operator
+
+        :param dominated: list of lists of dominated strategies, one for each player
+        :return: updated list of dominated strategies
+        '''
+        new_dominated = [i.copy() for i in dominated]
+        # create a list of lists of dominated strategies
+        rows = [row_and_col[0].index(i) for i in row_and_col[0] if i in dominated]
+        columns = [row_and_col[1].index(i) for i in row_and_col[1] if i in dominated]
+
+        if verbose:
+            print('the dominated is', new_dominated)
+            print('dominated rows', rows)
+            print('dominated columns', columns)
+
+        # loop through all the not dominated rows and see if now are dominated
+        for row in row_and_col[0]:
+            if row_and_col[0].index(row) not in rows:
+                if self.dominated(MJ, row_and_col[0].index(row), rows=rows, columns=columns):
+                    new_dominated.append(row)
+
+        return new_dominated
+
+    def get_rationalizable_strategies(self):
+        # list of matrices and of the lists of names of rows and columns
+        M, rows_and_columns = self.initialization_step()
+        # list of dominated strategies
+        dominated = []
+
+        while True:
+            flag = []
+            #loop thrugh all the matrices
+            for i in range(len(M)):
+                # select matrix, list of rows and columns and list of dominated rows
+                MJ = M[i]
+                row_and_col = rows_and_columns[i]
+                dom = self.ro(MJ, row_and_col, dominated)
+                for i in dom:
+                    if i not in dominated:
+                        flag.append(i)
+
+            if len(flag) == 0:
+                break
+            else:
+                for i in flag:
+                    if i not in dominated:
+                        dominated.append(i)
+
+        reduced_strat = {}
+        for player in self.players:
+            reduced_strat[player] = self.get_reduced_strategies_by_player(player)
+        for player in self.players:
+            reduced_strat[player] = [i for i in reduced_strat[player] if i not in dominated]
+
+        return reduced_strat

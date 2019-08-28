@@ -2,7 +2,7 @@ from .Node import Node
 
 class InformationSet:
     '''
-    This class represents an informtion set
+    This class represents an information set
     '''
     def __init__(self, nodes):
         # usual checks
@@ -15,7 +15,7 @@ class InformationSet:
         for node in nodes:
             # checks all are nodes
             assert isinstance(node, Node)
-            # checks actions are the sme and players are the same
+            # checks actions are the same and players are the same
             assert node.player == player
             assert sorted(node.get_actions()) == sorted(actions)
         self.player = player

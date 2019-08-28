@@ -17,14 +17,15 @@ class Node:
     def __init__(self, player='1'):
         self.player = player
         self.children = {}
-        self.brothers = []
 
     def __repr__(self):
         '''
         To be improved
         :return:
         '''
-        return 'Node with player ' + self.player + '\n' + str(self.get_actions())
+        return '\n Node with active player :' + self.player + '\n' + \
+               'the possible actions are: ' + str(self.get_actions()) + \
+               'the childrens are: ' + str(self.get_children())
 
     def add_child(self, action, node):
         '''
